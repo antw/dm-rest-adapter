@@ -7,7 +7,7 @@ describe 'Updating a resource which is valid' do
     # Inital creation of the resource.
     post('books.xml', 201) { (@book = Book.gen).to_xml }
 
-    # Subequent update.
+    # Subsequent update.
     put("books/#{@book.id}.xml", 200) { '' }
   end
 
@@ -26,7 +26,7 @@ describe 'Updating a resource which is not valid' do
     # Inital creation of the resource.
     post('books.xml', 201) { (@book = Book.gen).to_xml }
 
-    # Subequent update.
+    # Subsequent update.
     put("books/#{@book.id}.xml", 422) do
       Book.new.errors.tap do |errors|
         errors.add(:title,  'Title must not blank')
