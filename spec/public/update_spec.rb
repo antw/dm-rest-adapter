@@ -52,7 +52,8 @@ describe 'Updating a resource which is not valid' do
 
   it 'should set single errors' do
     pending("Don't raise an exception when validation fails") do
-      title_errors = book.save.errors[:title]
+      book.save
+      title_errors = book.errors[:title]
 
       title_errors.should_not be_empty
       title_errors.first.should eql('Title may not be blank')
@@ -61,7 +62,8 @@ describe 'Updating a resource which is not valid' do
 
   it 'should set multiple errors' do
     pending("Don't raise an exception when validation fails") do
-      author_errors = book.save(:author => 'Tobias Funke').errors[:author]
+      book.save(:author => 'Tobias Funke')
+      author_errors = book.errors[:author]
 
       author_errors.should_not be_empty
       author_errors.should include('Author must not be blank')
