@@ -33,7 +33,6 @@ module DataMapperRest
             DataMapper.repository(:memory) { yield }
           else '' end
 
-        FakeWeb.register_uri(:get,
         FakeWeb.register_uri(http_method,
           "http://admin:secret@localhost:4000/#{path}",
           :status  => status,
