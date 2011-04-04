@@ -1,6 +1,6 @@
 require 'rubygems'
 require 'pathname'
-require 'fakeweb'
+require 'webmock/rspec'
 require 'dm-validations'
 require 'dm-serializer'
 require 'dm-sweatshop'
@@ -21,14 +21,12 @@ Pathname.glob((ROOT + 'spec/fixtures/**/*.rb').to_s).each { |file| require file 
 Pathname.glob((ROOT + 'spec/factories/**/*.rb').to_s).each  { |file| require file }
 Pathname.glob((ROOT + 'spec/support/**/*.rb').to_s).each  { |file| require file }
 
-FakeWeb.allow_net_connect = false
-
 Spec::Runner.configure do |config|
-  config.include DataMapperRest::Spec::FakeWebHelpers
+  config.include DataMapperRest::Spec::WebmockHelpers
+
+  # No real connections.
+  config.before(:suite) { WebMock.disable_net_connect! }
 
   # Wipe the memory adapter prior to each example.
   config.after(:each) { DataMapper.repository(:memory).adapter.reset }
-
-  # Reset FakeWeb.
-  config.after(:each) { FakeWeb.clean_registry }
 end
