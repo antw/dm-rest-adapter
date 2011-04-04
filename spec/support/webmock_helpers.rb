@@ -2,7 +2,7 @@ module DataMapperRest
   module Spec
     module WebmockHelpers
 
-      URI = "http://admin:secret@localhost:4000/"
+      URI = "http://admin:secret@localhost:4000"
 
       # Registers a URI path with FakeWeb.
       #
@@ -44,7 +44,7 @@ module DataMapperRest
             DataMapper.repository(:memory) { yield }
           else '' end
 
-        stub_request(method, "#{URI}#{path}").to_return(
+        stub_request(method, "#{URI}/#{path}").to_return(
           :body    => body,
           :status  => status,
           :headers => { 'Content-Length' => body.length })

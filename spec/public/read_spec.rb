@@ -1,6 +1,63 @@
 require 'spec_helper'
 
-# ----------------------------------------------------------------------------
+# REQUEST FORMAT (SERVER-SIDE) TESTS =========================================
+
+describe 'Reading multiple records' do
+  before(:each) do
+    get('books.xml') { Book.all.to_xml }
+    Book.all.to_a # bang!
+  end
+
+  let(:uri) { "#{DataMapperRest::Spec::WebmockHelpers::URI}/books.xml" }
+
+  it 'should send a GET request to the index action' do
+    WebMock.should have_requested(:get, uri)
+  end
+
+  it 'should set a Content-Type header' do
+    WebMock.should have_requested(:get, uri).
+      with(:headers => { 'Content-Type' => 'application/xml' })
+  end
+
+  it 'should set an Accept header' do
+    pending('Should set a more specific Accept header (currently */*)') do
+      WebMock.should have_requested(:get, uri).
+        with(:headers => { 'Accept' => 'application/xml' })
+    end
+  end
+end
+
+describe 'Reading single records' do
+  before(:each) do
+    get('books/1.xml') { Book.gen.to_xml }
+  end
+
+  let(:uri) { "#{DataMapperRest::Spec::WebmockHelpers::URI}/books/1.xml" }
+
+  it 'should send a GET request to the show-resource action' do
+    Book.get(1) # bang!
+
+    WebMock.should have_requested(:get, uri)
+  end
+
+  it 'should set a Content-Type header' do
+    Book.get(1) # bang!
+
+    WebMock.should have_requested(:get, uri).
+      with(:headers => { 'Content-Type' => 'application/xml' })
+  end
+
+  it 'should set an Accept header' do
+    pending('Should set a more specific Accept header (currently */*)') do
+      Book.get(1) # bang!
+
+      WebMock.should have_requested(:get, uri).
+        with(:headers => { 'Accept' => 'application/xml' })
+    end
+  end
+end
+
+# CLIENT-SIDE TESTS ----------------------------------------------------------
 
 describe 'Reading with an unscoped query' do
   context 'which returns no records' do
