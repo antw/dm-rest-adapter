@@ -58,11 +58,20 @@ module DataMapperRest
       end.size
     end
 
+    # Deletes one or more resources.
+    #
+    # @param [Collection] collection
+    #   Collection of records to be deleted.
+    #
+    # @return [Integer]
+    #   The number of records successfully deleted.
+    #
+    # @api semipublic
+    #
     def delete(collection)
       collection.select do |resource|
         model = resource.model
-        key   = model.key
-        id    = key.get(resource).join
+        id    = model.key.get(resource).join
 
         response = connection.http_delete("#{collection_name(model)}/#{id}")
         response.kind_of?(Net::HTTPSuccess)
