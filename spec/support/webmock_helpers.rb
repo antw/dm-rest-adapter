@@ -1,8 +1,10 @@
 module DataMapperRest
   module Spec
-    module WebmockHelpers
 
-      URI = "http://admin:secret@localhost:4000"
+    # Protocol, host, and port of test requests.
+    URI = "http://admin:secret@localhost:4000"
+
+    module WebmockHelpers
 
       # Registers a URI path with FakeWeb.
       #

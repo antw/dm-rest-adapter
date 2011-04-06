@@ -8,7 +8,7 @@ describe 'Reading multiple records' do
     Book.all.to_a # bang!
   end
 
-  let(:uri) { "#{DataMapperRest::Spec::WebmockHelpers::URI}/books.xml" }
+  let(:uri) { "#{DataMapperRest::Spec::URI}/books.xml" }
 
   it 'should send a GET request to the index action' do
     WebMock.should have_requested(:get, uri)
@@ -32,7 +32,7 @@ describe 'Reading single records' do
     get('books/1.xml') { Book.gen.to_xml }
   end
 
-  let(:uri) { "#{DataMapperRest::Spec::WebmockHelpers::URI}/books/1.xml" }
+  let(:uri) { "#{DataMapperRest::Spec::URI}/books/1.xml" }
 
   it 'should send a GET request to the show-resource action' do
     Book.get(1) # bang!
