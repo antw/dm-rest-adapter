@@ -8,7 +8,7 @@ module DataMapperRest
 
     def initialize(uri, format)
       @uri = uri
-      @format = Format.new(format)
+      @format = Formats::XML.new
     end
 
     # this is used to run the http verbs like http_post, http_put, http_delete etc.
@@ -32,7 +32,7 @@ module DataMapperRest
       def run_verb(verb, data = nil)
         request do |http|
           klass = DataMapper::Ext::Module.find_const(Net::HTTP, DataMapper::Inflector.camelize(verb))
-          request = klass.new(@uri.to_s, @format.header)
+          request = klass.new(@uri.to_s, @format.headers)
           request.basic_auth(@uri.user, @uri.password) if @uri.user && @uri.password
           result = http.request(request, data)
 

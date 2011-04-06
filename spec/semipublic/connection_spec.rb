@@ -25,12 +25,20 @@ describe 'A Connection instance' do
   end
 
   it "should return the correct extension and mime type for xml" do
-    @connection.format.header.should == {'Content-Type' => "application/xml"}
+    @connection.format.headers.should == {
+      'Accept'       => 'application/xml',
+      'Content-Type' => "application/xml"
+    }
   end
 
   it "should return the correct extension and mime type for json" do
-    connection = DataMapperRest::Connection.new(@uri, "json")
-    connection.format.header.should == {'Content-Type' => "application/json"}
+    pending("Awaiting the JSON format") do
+      connection = DataMapperRest::Connection.new(@uri, "json")
+      connection.format.headers.should == {
+        'Accept'       => 'application/json',
+        'Content-Type' => "application/json"
+      }
+    end
   end
 
   describe 'when running the verb methods' do

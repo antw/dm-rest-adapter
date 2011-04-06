@@ -8,25 +8,37 @@ module DataMapperRest
       resources.each do |resource|
         model = resource.model
 
-        response = connection.http_post("#{resource_name(model)}", resource.to_xml)
+        response = connection.http_post("#{collection_name(model)}", resource.to_xml)
 
         update_with_response(resource, response)
       end
     end
 
+    # Retrieves resources over HTTP (i.e., an SQL select), returning an array
+    # of Hashes, with each hash containing attributes for a single resource.
+    #
+    # @param [Query] query
+    #   Composition of the query to perform.
+    #
+    # @return [Array]
+    #   Result set of the query.
+    #
+    # @api semipublic
+    #
     def read(query)
       model = query.model
 
       records = if id = extract_id_from_query(query)
-        response = connection.http_get("#{resource_name(model)}/#{id}")
-        [ parse_resource(response.body, model) ]
+        response = connection.http_get("#{collection_name(model)}/#{id}")
+        [ connection.format.resource(response.body, model, self) ]
       else
         query_string = if (params = extract_params_from_query(query)).any?
           params.map { |k,v| "#{CGI.escape(k.to_s)}=#{CGI.escape(v.to_s)}" }.join('&')
         end
 
-        response = connection.http_get("#{resource_name(model)}#{'?' << query_string if query_string}")
-        parse_resources(response.body, model)
+        response = connection.http_get("#{collection_name(model)}#{'?' << query_string if query_string}")
+
+        connection.format.resources(response.body, model, self)
       end
 
       query.filter_records(records)
@@ -40,7 +52,7 @@ module DataMapperRest
 
         dirty_attributes.each { |p, v| p.set!(resource, v) }
 
-        response = connection.http_put("#{resource_name(model)}/#{id}", resource.to_xml)
+        response = connection.http_put("#{collection_name(model)}/#{id}", resource.to_xml)
 
         update_with_response(resource, response)
       end.size
@@ -52,12 +64,31 @@ module DataMapperRest
         key   = model.key
         id    = key.get(resource).join
 
-        response = connection.http_delete("#{resource_name(model)}/#{id}")
+        response = connection.http_delete("#{collection_name(model)}/#{id}")
         response.kind_of?(Net::HTTPSuccess)
       end.size
     end
 
+    # Given a model, determines what key a collection of resources arestored
+    # in within a response body.
+    #
+    # @return [String]
+    #
+    def collection_name(model)
+      model.storage_name(name)
+    end
+
+    # Given a model, determines what key each resource is stored in.
+    #
+    # @return [String]
+    #
+    def resource_name(model)
+      DataMapper::Inflector.singularize(collection_name(model))
+    end
+
+    #######
     private
+    #######
 
     def initialize(*)
       super
@@ -123,10 +154,10 @@ module DataMapperRest
     def parse_resource(xml, model)
       doc = REXML::Document::new(xml)
 
-      element_name = element_name(model)
+      resource_name = resource_name(model)
 
-      unless entity_element = REXML::XPath.first(doc, "/#{element_name}")
-        raise "No root element matching #{element_name} in xml"
+      unless entity_element = REXML::XPath.first(doc, "/#{resource_name}")
+        raise "No root element matching #{resource_name} in xml"
       end
 
       field_to_property = Hash[ model.properties(name).map { |p| [ p.field, p ] } ]
@@ -137,19 +168,11 @@ module DataMapperRest
       doc = REXML::Document::new(xml)
 
       field_to_property = Hash[ model.properties(name).map { |p| [ p.field, p ] } ]
-      element_name      = element_name(model)
+      resource_name     = resource_name(model)
 
-      doc.elements.collect("/#{resource_name(model)}/#{element_name}") do |entity_element|
+      doc.elements.collect("/#{collection_name(model)}/#{resource_name}") do |entity_element|
         record_from_rexml(entity_element, field_to_property)
       end
-    end
-
-    def element_name(model)
-      DataMapper::Inflector.singularize(model.storage_name(self.name))
-    end
-
-    def resource_name(model)
-      model.storage_name(self.name)
     end
 
     def update_with_response(resource, response)

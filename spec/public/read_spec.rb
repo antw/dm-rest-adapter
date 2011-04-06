@@ -20,10 +20,8 @@ describe 'Reading multiple records' do
   end
 
   it 'should set an Accept header' do
-    pending('Should set a more specific Accept header (currently */*)') do
-      WebMock.should have_requested(:get, uri).
-        with(:headers => { 'Accept' => 'application/xml' })
-    end
+    WebMock.should have_requested(:get, uri).
+      with(:headers => { 'Accept' => 'application/xml' })
   end
 end
 
@@ -48,12 +46,10 @@ describe 'Reading single records' do
   end
 
   it 'should set an Accept header' do
-    pending('Should set a more specific Accept header (currently */*)') do
-      Book.get(1) # bang!
+    Book.get(1) # bang!
 
-      WebMock.should have_requested(:get, uri).
-        with(:headers => { 'Accept' => 'application/xml' })
-    end
+    WebMock.should have_requested(:get, uri).
+      with(:headers => { 'Accept' => 'application/xml' })
   end
 end
 
