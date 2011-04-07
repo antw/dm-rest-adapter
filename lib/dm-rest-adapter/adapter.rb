@@ -1,8 +1,10 @@
 module DataMapperRest
+  # Provides a DataMapper adapter supporting retrieving and persisting
+  # resources over a REST API to a remote server.
+  #
   # TODO: Abstract XML support out from the protocol
   # TODO: Build JSON support
-
-  # All http_"verb" (http_post) method calls use method missing in connection class which uses run_verb
+  #
   class Adapter < DataMapper::Adapters::AbstractAdapter
     def create(resources)
       resources.each do |resource|
@@ -196,5 +198,6 @@ module DataMapperRest
         end
       end
     end
-  end
-end
+
+  end # Adapter
+end # DataMapperRest
