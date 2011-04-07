@@ -12,8 +12,7 @@ require 'dm-rest-adapter'
 
 ROOT = Pathname(__FILE__).dirname.parent
 
-DataMapper.setup(:default, 'rest://admin:secret@localhost:4000/?format=xml')
-DataMapper.setup(:memory,  'in_memory://localhost')
+DataMapper.setup(:memory, 'in_memory://localhost')
 
 # Must come first...
 Pathname.glob((ROOT + 'spec/fixtures/**/*.rb').to_s).each { |file| require file }
@@ -25,6 +24,9 @@ Spec::Runner.configure do |config|
   config.extend  DataMapperRest::Spec::FormatHelpers
   config.include DataMapperRest::Spec::FormatHelpers
   config.include DataMapperRest::Spec::WebmockHelpers
+
+  # Default the REST adapter to XML.
+  config.before(:suite) { reset_format! }
 
   # No real connections.
   config.before(:suite) { WebMock.disable_net_connect! }

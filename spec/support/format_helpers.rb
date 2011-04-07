@@ -15,7 +15,8 @@ module DataMapperRest
           DataMapper.repository(:rest_format) do
             describe("With #{format}:") do
               before(:all) { set_format(format) }
-              after(:all)  { set_format(nil) }
+              after(:all)  { reset_format! }
+
               instance_eval(&block)
             end
           end
@@ -34,16 +35,21 @@ module DataMapperRest
       # Sets the format for the examples.
       #
       def set_format(format)
-        return Thread.current[:rest_format] = nil if format.nil?
-
         Thread.current[:rest_format] =
           case format
             when 'xml'  then DataMapperRest::Formats::XML.new
+            when 'json' then DataMapperRest::Formats::JSON.new
             else             raise "Unknown format: #{format}"
           end
 
-        DataMapper.setup(:rest_format,
+        DataMapper.setup(:default,
           "rest://admin:secret@localhost:4000/?format=#{format}")
+      end
+
+      # Reverts to the default adapter.
+      #
+      def reset_format!
+        set_format('xml')
       end
 
     end # FormatHelpers

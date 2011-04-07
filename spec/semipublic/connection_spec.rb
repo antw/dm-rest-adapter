@@ -12,7 +12,7 @@ describe 'A Connection instance' do
     :port     => URI_FRAGMENTS[:port]
   ) }
 
-  let(:connection) { DataMapperRest::Connection.new(uri, :__unused__) }
+  let(:connection) { DataMapperRest::Connection.new(uri, 'xml') }
 
   it "should construct a valid uri" do
     connection.uri.to_s.should eql(DataMapperRest::Spec::URI)
@@ -31,13 +31,11 @@ describe 'A Connection instance' do
   end
 
   it "should return the correct extension and mime type for json" do
-    pending("Awaiting the JSON format") do
-      connection = DataMapperRest::Connection.new(uri, "json")
-      connection.format.headers.should eql(
-        'Accept'       => 'application/json',
-        'Content-Type' => "application/json"
-      )
-    end
+    connection = DataMapperRest::Connection.new(uri, 'json')
+    connection.format.headers.should eql(
+      'Accept'       => 'application/json',
+      'Content-Type' => "application/json"
+    )
   end
 
   describe "when receiving error response codes" do

@@ -1,73 +1,79 @@
 require 'spec_helper'
 
-# ----------------------------------------------------------------------------
+with_formats 'xml', 'json' do
 
-describe 'Updating a resource which is valid' do
-  before(:each) do
-    # Inital creation of the resource.
-    post('books', 201) { (@book = Book.gen).to_xml }
+  # --------------------------------------------------------------------------
 
-    # Subsequent update.
-    put("books/#{@book.id}", 200) { '' }
-  end
+  describe 'Updating a resource which is valid' do
+    before(:each) do
+      # Inital creation of the resource.
+      post('books', 201) { @book = Book.gen }
 
-  let(:book) { Book.gen.tap { |b| b.title = 'New title' } }
-
-  it 'should update the resource' do
-    expect { book.save }.to change { book.dirty? }.to(false)
-    book.title.should eql('New title')
-  end
-end # Creating a new, valid resource
-
-# ----------------------------------------------------------------------------
-
-describe 'Updating a resource which is not valid' do
-  before(:each) do
-    # Inital creation of the resource.
-    post('books', 201) { (@book = Book.gen).to_xml }
-
-    # Subsequent update.
-    put("books/#{@book.id}", 422) do
-      Book.new.errors.tap do |errors|
-        errors.add(:title,  'Title must not blank')
-        errors.add(:author, 'Author must not be blank')
-        errors.add(:author, 'Author must not be blue')
-      end.to_xml
+      # Subsequent update.
+      put("books/#{@book.id}", 200) { '' }
     end
-  end
 
-  let(:book) { Book.gen.tap { |b| b.title = 'New title' } }
+    let(:book) { Book.gen.tap { |b| b.title = 'New title' } }
 
-  it 'should not raise an error' do
-    pending("Don't raise an exception when validation fails") do
-      expect { book.save }.to_not raise_error
+    it 'should update the resource' do
+      expect { book.save }.to change { book.dirty? }.to(false)
+      book.title.should eql('New title')
     end
-  end
+  end # Creating a new, valid resource
 
-  it 'should not persist the resource' do
-    pending("Don't raise an exception when validation fails") do
-      book.save.should_not be_saved
+  # --------------------------------------------------------------------------
+
+  describe 'Updating a resource which is not valid' do
+    before(:each) do
+      # Inital creation of the resource.
+      post('books', 201) { @book = Book.gen }
+
+      # Subsequent update.
+      put("books/#{@book.id}", 422) do
+        Book.new.errors.tap do |errors|
+          errors.add(:title,  'Title must not blank')
+          errors.add(:author, 'Author must not be blank')
+          errors.add(:author, 'Author must not be blue')
+        end
+      end
     end
-  end
 
-  it 'should set single errors' do
-    pending("Don't raise an exception when validation fails") do
-      book.save
-      title_errors = book.errors[:title]
+    let(:book) { Book.gen.tap { |b| b.title = 'New title' } }
 
-      title_errors.should_not be_empty
-      title_errors.first.should eql('Title may not be blank')
+    it 'should not raise an error' do
+      pending("Don't raise an exception when validation fails") do
+        expect { book.save }.to_not raise_error
+      end
     end
-  end
 
-  it 'should set multiple errors' do
-    pending("Don't raise an exception when validation fails") do
-      book.save(:author => 'Tobias Funke')
-      author_errors = book.errors[:author]
-
-      author_errors.should_not be_empty
-      author_errors.should include('Author must not be blank')
-      author_errors.should include('Author must not be blue')
+    it 'should not persist the resource' do
+      pending("Don't raise an exception when validation fails") do
+        book.save.should_not be_saved
+      end
     end
-  end
-end # Creating a new resource, when the server returns 422
+
+    it 'should set single errors' do
+      pending("Don't raise an exception when validation fails") do
+        book.save
+        title_errors = book.errors[:title]
+
+        title_errors.should_not be_empty
+        title_errors.first.should eql('Title may not be blank')
+      end
+    end
+
+    it 'should set multiple errors' do
+      pending("Don't raise an exception when validation fails") do
+        book.save(:author => 'Tobias Funke')
+        author_errors = book.errors[:author]
+
+        author_errors.should_not be_empty
+        author_errors.should include('Author must not be blank')
+        author_errors.should include('Author must not be blue')
+      end
+    end
+  end # Creating a new resource, when the server returns 422
+
+  # --------------------------------------------------------------------------
+
+end # with_formats 'xml', 'json'

@@ -3,7 +3,7 @@ share_examples_for 'a GET-like request' do
   # the HTTP method to be tested (e.g., :get, :head).
 
   let(:connection_method) { :"http_#{method}" }
-  let(:connection)        { DataMapperRest::Connection.new(base_uri, :__unused__) }
+  let(:connection)        { DataMapperRest::Connection.new(base_uri, 'xml') }
 
   let(:headers) do
     { 'Content-Type' => 'application/xml',
@@ -43,7 +43,7 @@ share_examples_for 'a GET-like request' do
   # --------------------------------------------------------------------------
 
   context 'when the connection is told to use the format extension' do
-    let(:connection) { DataMapperRest::Connection.new(base_uri, :__unused__, true) }
+    let(:connection) { DataMapperRest::Connection.new(base_uri, 'xml', true) }
     let(:base_uri)   { Addressable::URI.parse(DataMapperRest::Spec::URI) }
 
     it 'should append the format extension' do

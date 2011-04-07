@@ -59,7 +59,7 @@ module DataMapperRest
 
             # If this example is being executed within a with_formats block,
             # run the serializer on whatever the block returned.
-            unless current_format.nil?
+            unless current_format.nil? or returned.kind_of?(String)
               returned = current_format.serialize_resource(returned)
             end
 
@@ -82,6 +82,14 @@ module DataMapperRest
             register_uri_with_body(:#{method}, path, status, &block)
           end
         RUBY
+      end
+
+      # Returns a string URI, appending the given path to URI.
+      #
+      # @return [String]
+      #
+      def uri_for(path)
+        "#{DataMapperRest::Spec::URI}/#{path}"
       end
 
     end # WebmockHelpers

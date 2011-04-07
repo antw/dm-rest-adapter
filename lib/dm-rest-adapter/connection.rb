@@ -36,11 +36,18 @@ module DataMapperRest
     #   Indicates whether to append the format extension to URIs when making
     #   requests.
     #
+    # @todo
+    #   Use a registry to store formats so that users may define their own.
+    #
     def initialize(uri, format, use_extension = false)
       @uri = uri
       @use_extension = use_extension
 
-      @format = Formats::XML.new
+      @format = case format
+        when 'xml'  then Formats::XML.new
+        when 'json' then Formats::JSON.new
+        else             raise "Unknown format: #{format}"
+      end
     end
 
     # Create methods for easily sending HTTP requests without data.
