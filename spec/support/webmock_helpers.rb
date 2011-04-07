@@ -1,8 +1,20 @@
 module DataMapperRest
   module Spec
 
+    URI_FRAGMENTS = {
+      :protocol => 'http',
+      :username => 'admin',
+      :password => 'secret',
+      :host     => 'localhost',
+      :port     =>  4000
+    }
+
     # Protocol, host, and port of test requests.
-    URI = "http://admin:secret@localhost:4000"
+    URI = "%s://%s:%s@%s:%d" % [
+      URI_FRAGMENTS[:protocol],
+      URI_FRAGMENTS[:username], URI_FRAGMENTS[:password],
+      URI_FRAGMENTS[:host],     URI_FRAGMENTS[:port]
+    ]
 
     module WebmockHelpers
 

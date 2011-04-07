@@ -1,4 +1,5 @@
 require 'cgi'  # for CGI.escape
+require 'net/http'
 require 'addressable/uri'
 
 require 'dm-core'
