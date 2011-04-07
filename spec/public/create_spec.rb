@@ -4,7 +4,7 @@ require 'spec_helper'
 
 describe 'Creating a new, valid resource' do
   before(:each) do
-    post('books.xml', 201) { (@book = Book.gen).to_xml }
+    post('books', 201) { (@book = Book.gen).to_xml }
   end
 
   it 'should persist the resource' do
@@ -23,7 +23,7 @@ end # Creating a new, valid resource
 
 describe 'Creating a new resource, when the server returns 422' do
   before(:each) do
-    post('books.xml', 422) do
+    post('books', 422) do
       Book.new.errors.tap do |errors|
         errors.add(:title,  'Title must not blank')
         errors.add(:author, 'Author must not be blank')

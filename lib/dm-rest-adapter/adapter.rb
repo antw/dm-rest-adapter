@@ -150,7 +150,8 @@ module DataMapperRest
     # @return [Connection] The connection instance.
     #
     def connection
-      @connection ||= Connection.new(normalized_uri, @format)
+      @connection ||= Connection.new(
+        normalized_uri, @format, @options.fetch(:extension, false))
     end
 
     # A copy of the URI without the various configuration options which may
@@ -162,7 +163,7 @@ module DataMapperRest
       @normalized_uri ||=
         begin
           query = @options.except(:adapter, :user, :password, :host,
-                                  :port, :path, :fragment)
+                                  :port, :path, :fragment, :extension)
 
           query = nil if query.empty?
 

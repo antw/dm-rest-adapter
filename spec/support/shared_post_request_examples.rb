@@ -16,29 +16,44 @@ share_examples_for 'a POST-like request' do
     let(:base_uri) { Addressable::URI.parse(DataMapperRest::Spec::URI) }
 
     it 'should send a correctly-formed request' do
-      register_uri_with_body(method, 'foobars.xml')
+      register_uri_with_body(method, 'foobars')
       connection.__send__(connection_method, 'foobars')
 
-      expected = base_uri.dup.tap { |u| u.path = 'foobars.xml' }
+      expected = base_uri.dup.tap { |u| u.path = 'foobars' }
       WebMock.should have_requested(method.to_sym, expected).
         with(:body => nil, :headers => headers)
     end
 
     it 'should send the given request body' do
-      register_uri_with_body(method, 'foobars.xml')
+      register_uri_with_body(method, 'foobars')
       connection.__send__(:"http_#{method}", 'foobars', '<data>')
 
-      expected = base_uri.dup.tap { |u| u.path = 'foobars.xml' }
+      expected = base_uri.dup.tap { |u| u.path = 'foobars' }
       WebMock.should have_requested(method.to_sym, expected).
         with(:body => '<data>')
     end
 
-    it 'should preserve params from the the request' do
+    it 'should not permit params' do
       expect {
         connection.__send__(connection_method, 'foobars', :widget => 'yes')
       }.to raise_error("Cannot send params with a #{method.upcase} request")
     end
   end # when the adapter URI has no params
+
+  # --------------------------------------------------------------------------
+
+  context 'when the connection is told to use the format extension' do
+    let(:connection) { DataMapperRest::Connection.new(base_uri, :__unused__, true) }
+    let(:base_uri)   { Addressable::URI.parse(DataMapperRest::Spec::URI) }
+
+    it 'should append the format extension' do
+      register_uri_with_body(method, 'foobars.xml')
+      connection.__send__(connection_method, 'foobars')
+
+      expected = base_uri.dup.tap { |u| u.path = 'foobars.xml' }
+      WebMock.should have_requested(method.to_sym, expected)
+    end
+  end # when the connection is told to use the format extension
 
   # --------------------------------------------------------------------------
 
@@ -48,11 +63,11 @@ share_examples_for 'a POST-like request' do
     }
 
     it 'should preserve params when sending the request' do
-      register_uri_with_body(method, 'foobars.xml?baz=no')
+      register_uri_with_body(method, 'foobars?baz=no')
       connection.__send__(connection_method, 'foobars')
 
       expected = base_uri.dup.tap do |uri|
-        uri.path  = 'foobars.xml'
+        uri.path  = 'foobars'
         uri.query = 'baz=no'
       end
 

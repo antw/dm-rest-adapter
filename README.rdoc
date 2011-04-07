@@ -52,6 +52,37 @@ methods as datamapper including during creation.
  p.save
  # => saves the resource on the remote
 
+== Path extensions (.xml, .json, etc)
+
+By default, dm-rest-adapter does not append an extension to each URI when
+performing requests. The HTTP specification defines two headers which should
+be used to indicate the type of content being sent by a client, and the types
+of content the client may accept in response; Content-Type and Accept.
+
+Since some clients couldn't set these headers, some frameworks adopted a
+workaround which was to permit specifying the content type as part of the URL,
+for example "/books.xml", or "/books.json".
+
+However, since setting headers is no problem for us, we don't do it, and
+instead trust the upstream provider to correctly handle the Content-Type and
+Accept headers (most web frameworks do this just fine). If you find that your
+REST endpoint requires such an extension to be present, you should:
+
+1. Politely request that the service provider fixes their application so
+   as to use the Accept and Content-Type headers.
+
+2. In the mean-time, configure your repository with an :extension => true
+   option:
+
+     DataMapper.setup(:default, {
+       :adapter  => 'rest',
+       :format   => 'xml',
+       # [...]
+       :extension => true
+     })
+
+   This will tell the adapter to append the file extension.
+
 == Caveat
 
 Posts do not honor RESTful HTTP status codes. I might fix this...

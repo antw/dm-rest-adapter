@@ -5,10 +5,10 @@ require 'spec_helper'
 describe 'Deleting a resource with no errors' do
   before(:each) do
     # Inital creation of the resource.
-    post('books.xml', 201) { (@book = Book.gen).to_xml }
+    post('books', 201) { (@book = Book.gen).to_xml }
 
     # Subsequent delete.
-    delete("books/#{@book.id}.xml", 200) { '' }
+    delete("books/#{@book.id}", 200) { '' }
   end
 
   let(:book) { Book.gen }
@@ -30,10 +30,10 @@ describe 'Deleting a resource which is not valid' do
   # need to handle those in the same way as handing failing updates.
   before(:each) do
     # Inital creation of the resource.
-    post('books.xml', 201) { (@book = Book.gen).to_xml }
+    post('books', 201) { (@book = Book.gen).to_xml }
 
     # Subsequent delete.
-    delete("books/#{@book.id}.xml", 422) do
+    delete("books/#{@book.id}", 422) do
       Book.new.errors.tap do |errors|
         errors.add(:title,  'Title must not blank')
         errors.add(:author, 'Author must not be blank')

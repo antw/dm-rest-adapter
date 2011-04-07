@@ -4,11 +4,11 @@ require 'spec_helper'
 
 describe 'Reading multiple records' do
   before(:each) do
-    get('books.xml') { Book.all.to_xml }
+    get('books') { Book.all.to_xml }
     Book.all.to_a # bang!
   end
 
-  let(:uri) { "#{DataMapperRest::Spec::URI}/books.xml" }
+  let(:uri) { "#{DataMapperRest::Spec::URI}/books" }
 
   it 'should send a GET request to the index action' do
     WebMock.should have_requested(:get, uri)
@@ -27,10 +27,10 @@ end
 
 describe 'Reading single records' do
   before(:each) do
-    get('books/1.xml') { Book.gen.to_xml }
+    get('books/1') { Book.gen.to_xml }
   end
 
-  let(:uri) { "#{DataMapperRest::Spec::URI}/books/1.xml" }
+  let(:uri) { "#{DataMapperRest::Spec::URI}/books/1" }
 
   it 'should send a GET request to the show-resource action' do
     Book.get(1) # bang!
@@ -58,7 +58,7 @@ end
 describe 'Reading with an unscoped query' do
   context 'which returns no records' do
     before(:each) do
-      get('books.xml') { Book.all.to_xml }
+      get('books') { Book.all.to_xml }
     end
 
     it 'should return an empty collection' do
@@ -68,7 +68,7 @@ describe 'Reading with an unscoped query' do
 
   context 'which returns a single record' do
     before(:each) do
-      get('books.xml') { @book = Book.gen ; Book.all.to_xml }
+      get('books') { @book = Book.gen ; Book.all.to_xml }
     end
 
     it 'should return a collection with one Book' do
@@ -82,7 +82,7 @@ describe 'Reading with an unscoped query' do
 
   context 'which returns > 1 record' do
     before(:each) do
-      get('books.xml') do
+      get('books') do
         @books = [ Book.gen, Book.gen, Book.gen ]
         Book.all.to_xml
       end
@@ -110,11 +110,11 @@ end # Reading with an unscoped query
 describe 'Reading with a query scoped by the key' do
   context 'when the resource exists' do
     before(:each) do
-      get('books/1.xml') { @book = Book.gen(:id => 1) ; @book.to_xml }
+      get('books/1') { @book = Book.gen(:id => 1) ; @book.to_xml }
     end
 
     it 'should return the record when using all' do
-      pending('Adapter should determine that this means books/1.xml') do
+      pending('Adapter should determine that this means books/1') do
         Book.all(:id => 1).should have(1).element
       end
     end
@@ -130,7 +130,7 @@ describe 'Reading with a query scoped by the key' do
 
   context 'when the resource does not exist' do
     before(:each) do
-      get('books/1.xml', 404)
+      get('books/1', 404)
     end
 
     it 'should return an empty collection when using all' do
@@ -181,12 +181,12 @@ describe 'Reading with a query scoped by a non-key' do
     end
 
     it 'should return an array with a both matching records when using all' do
-      get('books.xml?author=Tobias+Funke') { @body.call }
+      get('books?author=Tobias+Funke') { @body.call }
       Book.all(:author => 'Tobias Funke').should have(2).elements
     end
 
     it 'should return a single book when using first' do
-      get('books.xml?author=Tobias+Funke&limit=1&offset=0') { @body.call }
+      get('books?author=Tobias+Funke&limit=1&offset=0') { @body.call }
       @book = Book.first(:author => 'Tobias Funke')
 
       @book.should be_a(Book)
@@ -199,7 +199,7 @@ end # Reading with a query scoped by a non-key
 
 describe 'Reading with a non-standard model storage_name' do
   before(:each) do
-    get('books.xml') do
+    get('books') do
       @books = [ Book.gen, Book.gen, Book.gen ]
       Book.all.to_xml
     end

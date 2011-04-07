@@ -32,9 +32,14 @@ module DataMapperRest
     #   for requests, port, protocol, etc.
     # @param [String] format
     #   The format to be used when making requests (currently not used).
+    # @param [true, false] use_extension
+    #   Indicates whether to append the format extension to URIs when making
+    #   requests.
     #
-    def initialize(uri, format)
+    def initialize(uri, format, use_extension = false)
       @uri = uri
+      @use_extension = use_extension
+
       @format = Formats::XML.new
     end
 
@@ -54,6 +59,14 @@ module DataMapperRest
           send_request('#{method}', path, data)  #   send_request('post', path, data)
         end                                      # end
       RUBY
+    end
+
+    # Returns whether the connection will append the format extension to URIs.
+    #
+    # @return [true, false]
+    #
+    def use_extension?
+      @use_extension
     end
 
     #########
@@ -133,13 +146,11 @@ module DataMapperRest
       # Don't alter the adapter's URI.
       request_uri = base_uri.dup
 
-      # Add the format to the URL, before the params (indicated with a ?), or
-      # at the end if there are no parameters.
-      #
-      # @todo Get rid of this; format should be set using the
-      # Content-Type and Accept header.
-      #
-      request_uri.path = "#{path}.#{@format.extension}"
+      if use_extension?
+        request_uri.path = "#{path}.#{@format.extension}"
+      else
+        request_uri.path = path
+      end
 
       return [ request_uri, nil ] if request_body.nil? or request_body.empty?
 
