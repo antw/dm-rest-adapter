@@ -62,15 +62,29 @@ module DataMapperRest
       query.filter_records(records)
     end
 
+    # For each model instance in the collection, issues a PUT request to
+    # update the resources with their new attributes.
+    #
+    # @param [Hash(Property => Object)] attributes
+    #   Hash of attribute values to set, keyed by Property.
+    # @param [Collection] collection
+    #   Collection of records to be updated.
+    #
+    # @return [Integer]
+    #   The number of records updated.
+    #
+    # @api semipublic
+    #
     def update(dirty_attributes, collection)
       collection.select do |resource|
         model = resource.model
-        key   = model.key
-        id    = key.get(resource).join
+        id    = model.key.get(resource).join
 
-        dirty_attributes.each { |p, v| p.set!(resource, v) }
+        dirty_attributes.each { |prop, value| prop.set!(resource, value) }
 
-        response = connection.http_put("#{collection_name(model)}/#{id}", resource.to_xml)
+        response = connection.http_put(
+          "#{collection_name(model)}/#{id}",
+          connection.format.serialize_resource(resource))
 
         update_with_response(resource, response)
       end.size
