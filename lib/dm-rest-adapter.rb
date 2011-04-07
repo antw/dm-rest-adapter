@@ -7,7 +7,6 @@ require 'dm-serializer'
 
 require 'dm-rest-adapter/adapter'
 require 'dm-rest-adapter/connection'
-require 'dm-rest-adapter/formats'
 require 'dm-rest-adapter/exceptions'
 
 # @todo
