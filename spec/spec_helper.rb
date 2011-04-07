@@ -22,6 +22,8 @@ Pathname.glob((ROOT + 'spec/factories/**/*.rb').to_s).each  { |file| require fil
 Pathname.glob((ROOT + 'spec/support/**/*.rb').to_s).each  { |file| require file }
 
 Spec::Runner.configure do |config|
+  config.extend  DataMapperRest::Spec::FormatHelpers
+  config.include DataMapperRest::Spec::FormatHelpers
   config.include DataMapperRest::Spec::WebmockHelpers
 
   # No real connections.
@@ -30,3 +32,6 @@ Spec::Runner.configure do |config|
   # Wipe the memory adapter prior to each example.
   config.after(:each) { DataMapper.repository(:memory).adapter.reset }
 end
+
+# Make with_formats available at the top level.
+include DataMapperRest::Spec::FormatHelpers

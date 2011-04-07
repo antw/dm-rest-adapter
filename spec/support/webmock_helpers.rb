@@ -55,7 +55,15 @@ module DataMapperRest
       def register_uri_with_body(method, path, status = 200)
         body =
           if block_given?
-            DataMapper.repository(:memory) { yield }
+            returned = DataMapper.repository(:memory) { yield }
+
+            # If this example is being executed within a with_formats block,
+            # run the serializer on whatever the block returned.
+            unless current_format.nil?
+              returned = current_format.serialize_resource(returned)
+            end
+
+            returned
           else '' end
 
         stub_request(method.to_sym, "#{URI}/#{path}").to_return(
