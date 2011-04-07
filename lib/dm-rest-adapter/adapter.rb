@@ -50,7 +50,7 @@ module DataMapperRest
           response = connection.http_get("#{collection_name(model)}/#{id}")
           [ connection.format.resource(response.body, model, self) ]
         else
-          # When no key is present, we insead fetch the collection.
+          # When no key is present, we instead fetch the collection.
           params   = params_as_uri_string(extract_params_from_query(query))
           response = connection.http_get("#{collection_name(model)}#{params}")
 
