@@ -25,8 +25,8 @@ module DataMapperRest
         'xml'
       end
 
-      # Given a pre-parsed response body, transforms the attributes in the
-      # given hash into a resource.
+      # Given a response body, transforms the attributes into a hash
+      # containing the property names and typecast values.
       #
       # @param [Hash] attributes
       #   The attributes to be assigned to the resource.
@@ -38,7 +38,8 @@ module DataMapperRest
       #   The adapter. Required in order to find the collection and resource
       #   names.
       #
-      # @return [DataMapper::Resource]
+      # @return [Hash{String => Object}]
+      #   Parsed attributes for a resource.
       #
       def resource(response_body, model, adapter)
         document = REXML::Document.new(response_body)
@@ -64,8 +65,9 @@ module DataMapperRest
       #   The adapter. Required in order to find the collection and resource
       #   names.
       #
-      # @return [Array<DataMapper::Resource>]
-      #   The resources parsed from the response body.
+      # @return [Array(Hash{String => Object})]
+      #   An array of hashes containing parsed attributes for one or more
+      #   resources.
       #
       def resources(response_body, model, adapter)
         elements = REXML::Document.new(response_body).elements
@@ -102,8 +104,8 @@ module DataMapperRest
       # @param [DataMapper::Model] model
       #   The DataMapper model whose attributes are in +entity_element+.
       #
-      # @return [Hash{Property => Object}]
-      #   A hash of properties defined on the model, and the values present
+      # @return [Hash{String => Object}]
+      #   A hash of properties defined on the model and the values present
       #   in the given XML element(s).
       #
       def resource_from_rexml(entity_element, model)
