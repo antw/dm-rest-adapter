@@ -6,14 +6,30 @@ module DataMapperRest
   # TODO: Build JSON support
   #
   class Adapter < DataMapper::Adapters::AbstractAdapter
+
+    # For each model instance in resources, issues a POST request to create a
+    # new record in the data store for the instance
+    #
+    # @param [Enumerable(Resource)] resources
+    #   The list of resources (model instances) to create.
+    #
+    # @return [Integer]
+    #   The number of records that were actually saved into the database.
+    #
+    # @api semipublic
+    #
     def create(resources)
       resources.each do |resource|
         model = resource.model
 
-        response = connection.http_post("#{collection_name(model)}", resource.to_xml)
+        response = connection.http_post(
+          collection_name(model),
+          connection.format.serialize_resource(resource))
 
         update_with_response(resource, response)
       end
+
+      resources.length
     end
 
     # Retrieves resources over HTTP (i.e., an SQL select), returning an array
@@ -186,16 +202,25 @@ module DataMapperRest
       end
     end
 
+    # Updates a resource with attributes returned by the server.
+    #
+    # @param [DataMapper::Resource] resource
+    #   The resource whose attributes are to be updated.
+    # @param [Net::HTTPSuccess]
+    #   The response returned by the server.
+    #
     def update_with_response(resource, response)
-      return unless response.kind_of?(Net::HTTPSuccess) && !DataMapper::Ext.blank?(response.body)
+      # @todo Is the Net::HTTPSuccess check required? Won't failing requests
+      #       raise an exception, preventing us ever arriving here?
+      return unless response.kind_of?(Net::HTTPSuccess) and
+                    not DataMapper::Ext.blank?(response.body)
 
       model      = resource.model
       properties = model.properties(name)
+      attributes = connection.format.resource(response.body, model, self)
 
-      parse_resource(response.body, model).each do |key, value|
-        if property = properties[key.to_sym]
-          property.set!(resource, value)
-        end
+      attributes.each do |key, value|
+        if property = properties[key] then property.set!(resource, value) end
       end
     end
 

@@ -78,6 +78,19 @@ module DataMapperRest
         end
       end
 
+      # Given a resource, creates an XML representation suitable for sending
+      # over the wire.
+      #
+      # @param [DataMapper::Resource] resource
+      #   The resource to be serialized.
+      #
+      # @return [String]
+      #   A XML representation of the resource.
+      #
+      def serialize_resource(resource)
+        resource.to_xml
+      end
+
       #######
       private
       #######
