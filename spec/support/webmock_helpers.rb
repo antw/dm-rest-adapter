@@ -58,7 +58,7 @@ module DataMapperRest
             DataMapper.repository(:memory) { yield }
           else '' end
 
-        stub_request(method, "#{URI}/#{path}").to_return(
+        stub_request(method.to_sym, "#{URI}/#{path}").to_return(
           :body    => body,
           :status  => status,
           :headers => { 'Content-Length' => body.length })

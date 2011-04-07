@@ -40,67 +40,6 @@ describe 'A Connection instance' do
     end
   end
 
-  describe 'when running the action methods' do
-
-    let(:full_uri) do
-      uri.dup.tap { |u| u.path = 'foobars.xml' }
-    end
-
-    let(:headers) do
-      { 'Content-Type' => 'application/xml',
-        'Accept'       => 'application/xml' }
-    end
-
-    it 'should make an HTTP Post' do
-      post('foobars.xml')
-      connection.http_post("foobars", "<somexml>")
-
-      WebMock.should have_requested(:post, full_uri).with(
-        :body => '<somexml>', :headers => headers)
-    end
-
-    it 'should make an HTTP Head' do
-      head('foobars.xml')
-      connection.http_head("foobars")
-
-      WebMock.should have_requested(:head, full_uri).with(
-        :body => nil, :headers => headers)
-    end
-
-    it 'should make an HTTP Get' do
-      get('foobars.xml')
-      connection.http_get("foobars")
-
-      WebMock.should have_requested(:get, full_uri).with(
-        :body => nil, :headers => headers)
-    end
-
-    it 'should make an HTTP Put' do
-      put('foobars.xml')
-      connection.http_put("foobars", "<somexml>")
-
-      WebMock.should have_requested(:put, full_uri).with(
-        :body => '<somexml>', :headers => headers)
-    end
-
-    it 'should make an HTTP Delete' do
-      delete('foobars.xml')
-      connection.http_delete("foobars", "<somexml>")
-
-      WebMock.should have_requested(:delete, full_uri).with(
-        :body => '<somexml>', :headers => headers)
-    end
-
-    it 'should preserve params' do
-      get('foobars.xml?lolcode')
-      connection.http_get("foobars?lolcode")
-
-      expected = uri.dup.tap { |u| u.path = 'foobars.xml?lolcode' }
-      WebMock.should have_requested(:get, expected.to_s)
-    end
-
-  end
-
   describe "when receiving error response codes" do
 
     it 'should return the response on 200' do
@@ -191,4 +130,22 @@ describe 'A Connection instance' do
     end
 
   end
+end
+
+describe DataMapperRest::Connection do
+
+  %w( get head ).each do |method|
+    context "when making a #{method.upcase} request" do
+      let(:method) { method.to_sym }
+      it_should_behave_like 'a GET-like request'
+    end
+  end
+
+  %w( post put delete ).each do |method|
+    context "when making a #{method.upcase} request" do
+      let(:method) { method.to_sym }
+      it_should_behave_like 'a POST-like request'
+    end
+  end
+
 end
