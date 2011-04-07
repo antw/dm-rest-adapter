@@ -186,8 +186,6 @@ module DataMapperRest
     # @return [nil]    When no ID condition is present.
     #
     def extract_id_from_query(query)
-      return nil unless query.limit == 1
-
       conditions = query.conditions
 
       return nil unless conditions.kind_of?(DataMapper::Query::Conditions::AndOperation)

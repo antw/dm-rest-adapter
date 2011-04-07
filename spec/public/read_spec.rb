@@ -110,9 +110,7 @@ with_formats 'xml', 'json' do
       end
 
       it 'should return the record when using all' do
-        pending('Adapter should determine that this means books/1') do
-          Book.all(:id => 1).should have(1).element
-        end
+        Book.all(:id => 1).should have(1).element
       end
 
       it 'should return the record when using first' do
