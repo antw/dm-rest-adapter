@@ -44,18 +44,18 @@ module DataMapperRest
     def read(query)
       model = query.model
 
-      records = if id = extract_id_from_query(query)
-        response = connection.http_get("#{collection_name(model)}/#{id}")
-        [ connection.format.resource(response.body, model, self) ]
-      else
-        query_string = if (params = extract_params_from_query(query)).any?
-          params.map { |k,v| "#{CGI.escape(k.to_s)}=#{CGI.escape(v.to_s)}" }.join('&')
+      records =
+        if id = extract_id_from_query(query)
+          # When a key is present, fetch the single resource directly.
+          response = connection.http_get("#{collection_name(model)}/#{id}")
+          [ connection.format.resource(response.body, model, self) ]
+        else
+          # When no key is present, we insead fetch the collection.
+          params   = params_as_uri_string(extract_params_from_query(query))
+          response = connection.http_get("#{collection_name(model)}#{params}")
+
+          connection.format.resources(response.body, model, self)
         end
-
-        response = connection.http_get("#{collection_name(model)}#{'?' << query_string if query_string}")
-
-        connection.format.resources(response.body, model, self)
-      end
 
       query.filter_records(records)
     end
@@ -197,6 +197,20 @@ module DataMapperRest
       attributes.each do |key, value|
         if property = properties[key] then property.set!(resource, value) end
       end
+    end
+
+    # Given an hash of params, formats and escapes them for use in a URI
+    # string.
+    #
+    # @param [Hash] params The parameters to be formatted
+    # @return [String]
+    #
+    def params_as_uri_string(params)
+      return '' if params.length == 0
+
+      '?%s' % params.map do |key, value|
+        "#{CGI.escape(key.to_s)}=#{CGI.escape(value.to_s)}"
+      end.join('&')
     end
 
   end # Adapter
