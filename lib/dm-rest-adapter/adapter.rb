@@ -20,10 +20,8 @@ module DataMapperRest
     #
     def create(resources)
       resources.each do |resource|
-        model = resource.model
-
         response = connection.http_post(
-          collection_name(model),
+          collection_name(resource.model),
           connection.format.serialize_resource(resource))
 
         update_with_response(resource, response)
