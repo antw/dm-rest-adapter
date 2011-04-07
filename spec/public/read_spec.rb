@@ -130,13 +130,22 @@ with_formats 'xml', 'json' do
       end
 
       it 'should return an empty collection when using all' do
-        # Querying the collection will return 200 OK and an empty collection.
-        get('books', 200) { Book.all }
         Book.all(:id => 1).should have(:no).elements
+      end
+
+      it 'should return an empty collection when using all and a non-query' do
+        # Querying the collection will return 200 OK and an empty collection.
+        get('books?title=Hi!', 200) { Book.all }
+        Book.all(:title => 'Hi!').should have(:no).elements
       end
 
       it 'should return nil when using first' do
         Book.first(:id => 1).should be_nil
+      end
+
+      it 'should return nil when using first and a non-key' do
+        get('books?limit=1&offset=0&title=Hi!', 200) { Book.all }
+        Book.first(:title => 'Hi!').should be_nil
       end
 
       it 'should return nil when using get' do
