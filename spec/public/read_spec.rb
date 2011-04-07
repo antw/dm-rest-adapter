@@ -130,28 +130,22 @@ with_formats 'xml', 'json' do
       end
 
       it 'should return an empty collection when using all' do
-        pending("Should catch this 404") do
-          Book.all(:id => 1).should have(:no).elements
-        end
+        # Querying the collection will return 200 OK and an empty collection.
+        get('books', 200) { Book.all }
+        Book.all(:id => 1).should have(:no).elements
       end
 
       it 'should return nil when using first' do
-        pending("Should catch this 404") do
-          Book.first(:id => 1).should be_nil
-        end
+        Book.first(:id => 1).should be_nil
       end
 
       it 'should return nil when using get' do
-        pending("Should catch this 404") do
-          Book.get(1).should be_nil
-        end
+        Book.get(1).should be_nil
       end
 
       it 'should raise an error when using get!' do
-        pending("Catch 404 and raise ObjectNotFound") do
-          expect { Book.get!(1) }.to \
-            raise_error(DataMapper::ObjectNotFoundError)
-        end
+        expect { Book.get!(1) }.to \
+          raise_error(DataMapper::ObjectNotFoundError)
       end
     end # when the resource does not exist
   end # Reading with a query scoped by the key

@@ -47,14 +47,10 @@ module DataMapperRest
       records =
         if id = extract_id_from_query(query)
           # When a key is present, fetch the single resource directly.
-          response = connection.http_get("#{collection_name(model)}/#{id}")
-          [ connection.format.resource(response.body, model, self) ]
+          read_resource(query, id)
         else
           # When no key is present, we instead fetch the collection.
-          params   = extract_params_from_query(query)
-          response = connection.http_get(collection_name(model), params)
-
-          connection.format.resources(response.body, model, self)
+          read_resources(query)
         end
 
       query.filter_records(records)
@@ -215,6 +211,42 @@ module DataMapperRest
       return {} if conditions.any? { |o| o.subject.key? }
 
       query.options
+    end
+
+    # Reads a single resource from a repository.
+    #
+    # @param [DataMapper::Query] query
+    #   The query being performed.
+    # @param [Object] id
+    #   The key of the resource to be retrieved.
+    #
+    # @return [Array(Hash)]
+    #   The array contains a single hash with attributes for a resource if one
+    #   was found, or is empty if no resource was present.
+    #
+    def read_resource(query, id)
+      model = query.model
+
+      response = connection.http_get("#{collection_name(model)}/#{id}")
+      [ connection.format.resource(response.body, model, self) ]
+    rescue ResourceNotFound
+      []
+    end
+
+    # Reads a collection of resources from a repository.
+    #
+    # @param [DataMapper::Query] query
+    #   The query being performed.
+    #
+    # @return [Array(Hash)]
+    #   The array contains zero or more hashes of attributes for resources.
+    #
+    def read_resources(query)
+      model    = query.model
+      params   = extract_params_from_query(query)
+      response = connection.http_get(collection_name(model), params)
+
+      connection.format.resources(response.body, model, self)
     end
 
     # Updates a resource with attributes returned by the server.
