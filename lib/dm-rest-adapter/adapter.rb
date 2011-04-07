@@ -129,19 +129,41 @@ module DataMapperRest
     private
     #######
 
+    # Creates a new instance of the REST adapter.
+    #
+    # In addition to the usual options, the REST adapter accepts a :format
+    # option which indicates which formatter to use when sending and receiving
+    # data from the server.
+    #
+    # @see DataMapper::Adapters::AbstractAdapter
+    #
+    # @see Formats::JSON
+    # @see Formats::XML
+    #
     def initialize(*)
       super
       @format = @options.fetch(:format, 'xml')
     end
 
+    # The connection instance used when making requests.
+    #
+    # @return [Connection] The connection instance.
+    #
     def connection
       @connection ||= Connection.new(normalized_uri, @format)
     end
 
+    # A copy of the URI without the various configuration options which may
+    # be supplied to the adapter when using DataMapper.setup(...).
+    #
+    # @return [Addressable::URI] The normalized URI.
+    #
     def normalized_uri
       @normalized_uri ||=
         begin
-          query = @options.except(:adapter, :user, :password, :host, :port, :path, :fragment)
+          query = @options.except(:adapter, :user, :password, :host,
+                                  :port, :path, :fragment)
+
           query = nil if query.empty?
 
           Addressable::URI.new(
@@ -157,6 +179,15 @@ module DataMapperRest
         end
     end
 
+    # Given a query, searches for a condition which uses the resource's key
+    # property. This allow sending requests straight to the resource URI
+    # (e.g., books/1), rather than the collection.
+    #
+    # @param [DataMapper::Query] query The query being performed.
+    #
+    # @return [String] The extracted ID.
+    # @return [nil]    When no ID condition is present.
+    #
     def extract_id_from_query(query)
       return nil unless query.limit == 1
 
@@ -168,6 +199,14 @@ module DataMapperRest
       key_condition.first.value
     end
 
+    # Given a query, extracts the conditions so that they be appended to the
+    # URI. This permits the server to perform filtering on a collection,
+    # rather than having to do it client-side.
+    #
+    # @param [DataMapper::Query] query The query being performed.
+    #
+    # @return [Hash] A hash of the query conditions.
+    #
     def extract_params_from_query(query)
       conditions = query.conditions
 
