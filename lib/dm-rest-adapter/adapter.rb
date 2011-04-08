@@ -19,7 +19,7 @@ module DataMapperRest
     # @api semipublic
     #
     def create(resources)
-      resources.each do |resource|
+      resources.select do |resource|
         begin
           response = connection.http_post(
             collection_name(resource.model),
@@ -31,9 +31,9 @@ module DataMapperRest
           update_with_error(resource, exception.response)
         end
 
-      end
-
-      resources.length
+        # Only successful operations are counted.
+        response.kind_of?(Net::HTTPCreated)
+      end.size
     end
 
     # Retrieves resources over HTTP (i.e., an SQL select), returning an array
@@ -93,6 +93,8 @@ module DataMapperRest
           update_with_error(resource, exception.response)
         end
 
+        # Only successful operations are counted.
+        response.kind_of?(Net::HTTPSuccess)
       end.size
     end
 
@@ -112,6 +114,8 @@ module DataMapperRest
         id    = model.key.get(resource).join
 
         response = connection.http_delete("#{collection_name(model)}/#{id}")
+
+        # Only successful operations are counted.
         response.kind_of?(Net::HTTPSuccess)
       end.size
     end
