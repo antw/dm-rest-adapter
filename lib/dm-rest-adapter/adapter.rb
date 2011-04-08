@@ -32,7 +32,8 @@ module DataMapperRest
         end
 
         # Only successful operations are counted.
-        response.kind_of?(Net::HTTPCreated)
+        response.kind_of?(Net::HTTPCreated) or
+          response.kind_of?(Net::HTTPSuccess)
       end.size
     end
 
