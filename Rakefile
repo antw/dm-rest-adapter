@@ -9,9 +9,9 @@ begin
     gem.name        = 'dm-rest-adapter'
     gem.summary     = 'REST Adapter for DataMapper'
     gem.description = gem.summary
-    gem.email       = 'scott.burton [a] joyent [d] com'
+    gem.email       = [ 'hi@antw.me', 'scott.burton [a] joyent [d] com' ]
     gem.homepage    = 'http://github.com/datamapper/%s' % gem.name
-    gem.authors     = [ 'Scott Burton @ Joyent Inc' ]
+    gem.authors     = [ 'Anthony Williams', 'Scott Burton @ Joyent Inc' ]
     gem.has_rdoc    = 'yard'
 
     gem.rubyforge_project = 'datamapper'
