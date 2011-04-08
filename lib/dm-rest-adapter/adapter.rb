@@ -20,11 +20,17 @@ module DataMapperRest
     #
     def create(resources)
       resources.each do |resource|
-        response = connection.http_post(
-          collection_name(resource.model),
-          connection.format.serialize_resource(resource))
+        begin
+          response = connection.http_post(
+            collection_name(resource.model),
+            connection.format.serialize_resource(resource))
 
-        update_with_response(resource, response)
+          update_with_response(resource, response)
+
+        rescue ResourceInvalid => exception
+          update_with_error(resource, exception.response)
+        end
+
       end
 
       resources.length
@@ -76,11 +82,17 @@ module DataMapperRest
 
         dirty_attributes.each { |prop, value| prop.set!(resource, value) }
 
-        response = connection.http_put(
-          "#{collection_name(model)}/#{id}",
-          connection.format.serialize_resource(resource))
+        begin
+          response = connection.http_put(
+            "#{collection_name(model)}/#{id}",
+            connection.format.serialize_resource(resource))
 
-        update_with_response(resource, response)
+          update_with_response(resource, response)
+
+        rescue ResourceInvalid => exception
+          update_with_error(resource, exception.response)
+        end
+
       end.size
     end
 
@@ -266,6 +278,24 @@ module DataMapperRest
 
       attributes.each do |key, value|
         if property = properties[key] then property.set!(resource, value) end
+      end
+    end
+
+    # Updates a resource by setting validation errors returned by the server.
+    #
+    # @param [DataMapper::Resource] resource
+    #   The resource whose attributes are to be updated.
+    # @param [Net::HTTPSuccess]
+    #   The response returned by the server.
+    #
+    # @todo Disable when dm-validation isn't available?
+    # @todo Translate error "fields" to property names since they may differ.
+    #
+    def update_with_error(resource, response)
+      return if DataMapper::Ext.blank?(response.body)
+
+      connection.format.errors(response.body).each do |(field, errors)|
+        errors.each { |error| resource.errors.add(field.to_sym, error) }
       end
     end
 

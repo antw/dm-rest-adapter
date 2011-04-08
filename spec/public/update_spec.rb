@@ -31,46 +31,40 @@ with_formats 'xml', 'json' do
       # Subsequent update.
       put("books/#{@book.id}", 422) do
         Book.new.errors.tap do |errors|
-          errors.add(:title,  'Title must not blank')
+          errors.add(:title,  'Title must not be blank')
           errors.add(:author, 'Author must not be blank')
           errors.add(:author, 'Author must not be blue')
         end
       end
     end
 
-    let(:book) { Book.gen.tap { |b| b.title = 'New title' } }
+    let(:book) { Book.gen.tap { |b| b.author = 'Tobias Funke' } }
 
     it 'should not raise an error' do
-      pending("Don't raise an exception when validation fails") do
-        expect { book.save }.to_not raise_error
-      end
+      expect { book.save }.to_not raise_error
     end
 
-    it 'should not persist the resource' do
+    it 'should not mark the resource as clean' do
       pending("Don't raise an exception when validation fails") do
-        book.save.should_not be_saved
+        book.save.should be_dirty
       end
     end
 
     it 'should set single errors' do
-      pending("Don't raise an exception when validation fails") do
-        book.save
-        title_errors = book.errors[:title]
+      book.save
+      title_errors = book.errors[:title]
 
-        title_errors.should_not be_empty
-        title_errors.first.should eql('Title may not be blank')
-      end
+      title_errors.should_not be_empty
+      title_errors.first.should eql('Title must not be blank')
     end
 
     it 'should set multiple errors' do
-      pending("Don't raise an exception when validation fails") do
-        book.save(:author => 'Tobias Funke')
-        author_errors = book.errors[:author]
+      book.save
+      author_errors = book.errors[:author]
 
-        author_errors.should_not be_empty
-        author_errors.should include('Author must not be blank')
-        author_errors.should include('Author must not be blue')
-      end
+      author_errors.should_not be_empty
+      author_errors.should include('Author must not be blank')
+      author_errors.should include('Author must not be blue')
     end
   end # Creating a new resource, when the server returns 422
 

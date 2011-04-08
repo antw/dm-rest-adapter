@@ -80,6 +80,30 @@ module DataMapperRest
         end
       end
 
+      # Given a response body (expected to be a JSON object), converts the
+      # body into a Hash of errors keyed on each property.
+      #
+      # @param [String] response_body
+      #   The body returned by the web service.
+      #
+      # @return [Hash{String => Array(String)}]
+      #
+      def errors(response_body)
+        elements = REXML::Document.new(response_body).elements
+        errors   = Hash.new { |hash, key| hash[key] = Array.new }
+
+        elements.each('/errors/*') do |element|
+          # TODO Should be part of the NamingConventions.
+          field = element.name.to_s.tr('-', '_')
+
+          element.elements.each do |element|
+            errors[field] << element.text
+          end
+        end
+
+        errors
+      end
+
       # Given a resource, creates an XML representation suitable for sending
       # over the wire.
       #

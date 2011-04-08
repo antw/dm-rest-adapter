@@ -27,7 +27,7 @@ with_formats 'xml', 'json' do
     before(:each) do
       post('books', 422) do
         Book.new.errors.tap do |errors|
-          errors.add(:title,  'Title must not blank')
+          errors.add(:title,  'Title must not be blank')
           errors.add(:author, 'Author must not be blank')
           errors.add(:author, 'Author must not be blue')
         end
@@ -35,34 +35,34 @@ with_formats 'xml', 'json' do
     end
 
     it 'should not raise an error' do
-      pending("Don't raise an exception when validation fails") do
-        expect { Book.create }.to_not raise_error
-      end
+      expect { Book.create }.to_not raise_error
     end
 
     it 'should not persist the resource' do
-      pending("Don't raise an exception when validation fails") do
+      pending("Can't find a way to tell dm-core that the save failed...") do
         Book.create.should_not be_saved
       end
     end
 
-    it 'should set single errors' do
-      pending("Don't raise an exception when validation fails") do
-        title_errors = Book.create.errors[:title]
-
-        title_errors.should_not be_empty
-        title_errors.first.should == 'Title may not be blank'
+    it 'should not mark the resource as clean' do
+      pending("Can't find a way to tell dm-core that the save failed...") do
+        Book.create.should be_dirty
       end
     end
 
-    it 'should set multiple errors' do
-      pending("Don't raise an exception when validation fails") do
-        author_errors = Book.create(:author => 'Tobias Funke').errors[:author]
+    it 'should set single errors' do
+      title_errors = Book.create.errors[:title]
 
-        author_errors.should_not be_empty
-        author_errors.should include('Author must not be blank')
-        author_errors.should include('Author must not be blue')
-      end
+      title_errors.should_not be_empty
+      title_errors.first.should == 'Title must not be blank'
+    end
+
+    it 'should set multiple errors' do
+      author_errors = Book.create(:author => 'Tobias Funke').errors[:author]
+
+      author_errors.should_not be_empty
+      author_errors.should include('Author must not be blank')
+      author_errors.should include('Author must not be blue')
     end
   end # Creating a new resource, when the server returns 422
 

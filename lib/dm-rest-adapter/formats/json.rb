@@ -28,7 +28,7 @@ module DataMapperRest
       # Given a response body, transforms the attributes in the given hash
       # into a hash containing the property names and typecast values.
       #
-      # @param [Hash] attributes
+      # @param [String] attributes
       #   The attributes to be assigned to the resource.
       # @param [DataMapper::Model] model
       #   The model whose resources are to be extracted for the response_body.
@@ -49,7 +49,7 @@ module DataMapperRest
       # Given a response body (expected to be a JSON array), iterates through
       # each element and creates a Resource instance.
       #
-      # @param [Hash, Array] response_body
+      # @param [String] response_body
       #   The body returned by the web service.
       # @param [DataMapper::Model] model
       #   The model whose resources are to be extracted for the response_body.
@@ -67,6 +67,18 @@ module DataMapperRest
         ::JSON.parse(response_body).map do |element|
           resource_from_json(element, model)
         end
+      end
+
+      # Given a response body (expected to be a JSON object), converts the
+      # body into a Hash of errors keyed on each property.
+      #
+      # @param [String] response_body
+      #   The body returned by the web service.
+      #
+      # @return [Hash{String => Array(String)}]
+      #
+      def errors(response_body)
+        ::JSON.parse(response_body)
       end
 
       # Given a resource, creates a JSON representation suitable for sending
