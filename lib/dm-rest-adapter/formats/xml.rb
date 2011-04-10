@@ -109,11 +109,14 @@ module DataMapperRest
       #
       # @param [DataMapper::Resource] resource
       #   The resource to be serialized.
+      # @param [Adapter] adapter
+      #   The adapter. Required in order to find the collection and resource
+      #   names.
       #
       # @return [String]
       #   A XML representation of the resource.
       #
-      def serialize_resource(resource)
+      def serialize_resource(resource, _)
         resource.to_xml
       end
 

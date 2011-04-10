@@ -60,7 +60,7 @@ module DataMapperRest
             # If this example is being executed within a with_formats block,
             # run the serializer on whatever the block returned.
             unless current_format.nil? or returned.kind_of?(String)
-              returned = current_format.serialize_resource(returned)
+              returned = serialize_object(returned)
             end
 
             returned

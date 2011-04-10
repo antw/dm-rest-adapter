@@ -52,6 +52,15 @@ module DataMapperRest
         set_format('xml')
       end
 
+      # Given something, serializes it according to the current format.
+      #
+      def serialize_object(object)
+        case current_format
+          when DataMapperRest::Formats::XML  then object.to_xml
+          when DataMapperRest::Formats::JSON then object.to_json
+        end
+      end
+
     end # FormatHelpers
   end # Spec
 end # DataMapperRest

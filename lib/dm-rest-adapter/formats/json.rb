@@ -86,12 +86,15 @@ module DataMapperRest
       #
       # @param [DataMapper::Resource] resource
       #   The resource to be serialized.
+      # @param [Adapter] adapter
+      #   The adapter. Required in order to find the collection and resource
+      #   names.
       #
       # @return [String]
       #   A JSON representation of the resource.
       #
-      def serialize_resource(resource)
-        resource.to_json
+      def serialize_resource(resource, adapter)
+        { adapter.resource_name(resource.model) => resource }.to_json
       end
 
       #######

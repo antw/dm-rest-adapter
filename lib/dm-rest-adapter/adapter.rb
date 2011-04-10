@@ -23,7 +23,7 @@ module DataMapperRest
         begin
           response = connection.http_post(
             collection_name(resource.model),
-            connection.format.serialize_resource(resource))
+            connection.format.serialize_resource(resource, self))
 
           update_with_response(resource, response)
 
@@ -86,7 +86,7 @@ module DataMapperRest
         begin
           response = connection.http_put(
             "#{collection_name(model)}/#{id}",
-            connection.format.serialize_resource(resource))
+            connection.format.serialize_resource(resource, self))
 
           update_with_response(resource, response)
 
