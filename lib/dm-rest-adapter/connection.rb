@@ -196,7 +196,7 @@ module DataMapperRest
     #
     def stringify_params(params)
       params.inject({}) do |memo, (key, value)|
-        memo[key] = (value == true or value == false ? value : value.to_s)
+        memo[key] = (value == true or value == false) ? value : value.to_s
         memo
       end
     end
