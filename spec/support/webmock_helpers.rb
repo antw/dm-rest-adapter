@@ -66,7 +66,11 @@ module DataMapperRest
             returned
           else '' end
 
-        stub_request(method.to_sym, "#{URI}/#{path}").to_return(
+        # Eww.
+        base_uri = DataMapper.repository.adapter.
+          __send__(:normalized_uri)
+
+        stub_request(method.to_sym, "#{base_uri}#{path}").to_return(
           :body    => body,
           :status  => status,
           :headers => { 'Content-Length' => body.length })
