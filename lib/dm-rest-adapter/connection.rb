@@ -153,6 +153,9 @@ module DataMapperRest
       # Don't alter the adapter's URI.
       request_uri = base_uri.dup
 
+      # Credentials are sent using the Authorization header.
+      request_uri.user = request_uri.password = nil
+
       if use_extension?
         request_uri.path = "#{path}.#{@format.extension}"
       else
